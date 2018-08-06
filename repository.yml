@@ -1,0 +1,70 @@
+---
+
+- hosts: xstream
+  user: root
+  become: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+   - name: set hostname for this machine
+     hostname: name=aio1.xsportal.local
+   - name: Run hostnamectl to set it permanently
+     shell: hostnamectl  set-hostname aio1.xsportal.local
+   - name: add hostname to /etc/hosts file to resolve it locally
+     lineinfile:
+       path: /etc/hosts
+       line: '10.60.45.68 aio1.xsportal.local aio1'
+       backup: yes
+     register: result
+   - debug: var=result
+
+   - name: ping all hosts
+     ping:
+
+   - name: remove some upgraded packages which xstream doesn't support if exists
+     yum: pkg=python2-crypto-2.6.1-15.el7.x86_64 state=absent
+
+  # - name: check if "ping `hostname -f` is a success"
+  #   ping: `hostname -f` 
+
+   - name: add repo
+     shell: curl -sS 'https://evalev:jens7iNs@downloads.virtustream.com/artifactory/repo-release/xstream/4.7.0/subscribe' | bash
+   - name: clean and show repo list
+     shell: yum clean all && yum repolist
+     register: result
+   - debug: var=result
+     
+   #- name: Install xStream xsdeploy
+     #yum: pkg=xstream-xsdeploy state=present
+   - name: Install xsdeploy on Centos7/Rhel7
+     shell: yum --setopt=obsoletes=0 install -y xstream-xsdeploy
+     register: result
+   - debug: var=result
+
+   - name: changing directory and prepare xsdeploy file to install xstream
+     #chdir: /usr/local/share/xstream/xsdeploy/
+     chdir: /usr/local/share/xstream/xsdeploy/
+     command: cp $HOME/xsdeploy-test.conf /usr/local/share/xstream/xsdeploy
+     register: result
+   - debug:
+       var: result 
+
+     #shell: cp /root/xsdeploy-test.conf /usr/local/share/xstream/xsdeploy/
+   - name: Run runme_1st.py script
+     chdir: /usr/local/share/xstream/xsdeploy/
+     shell: cd /usr/local/share/xstream/xsdeploy/ && ./runme_1st.py
+
+   - name: Finally install xStream
+     shell: cd /usr/local/share/xstream/xsdeploy/ && ./xsdeploy.py -f xsdeploy-test.conf -i --no-cleanup
+     #ignore_errors: yes
+     register: result
+   - debug: var=result
+
+   - name: Uninstall the xStream 4.7.0 
+     #expect:
+     shell: cd /usr/local/share/xstream/xsdeploy && ./xsdeploy.py -f xsdeploy-test.conf -p -y
+      # responses:
+       #  Are you sure you want to continue (yes/no)?:
+     tags: uninstall
+
+

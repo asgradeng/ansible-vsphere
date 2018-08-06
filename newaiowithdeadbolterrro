@@ -1,0 +1,396 @@
+##############################################################################
+#
+# Copyright (c) 2016 Virtustream, Inc. All Rights Reserved.
+#
+# This software contains the intellectual property of Virtustream, Inc. or is
+# licensed to Virtustream, Inc. from third parties.  Use of this software and
+# the intellectual property contained therein is expressly limited to the
+# terms and conditions of the License Agreement under which it is provided by
+# or on behalf of Virtustream.
+#
+
+##############################################################################
+#
+# xsDeploy AIO Configuration Template
+#
+# This template can be used with xsDeploy to deploy an 'All in One' (AIO)
+# xStream instance with an embedded LDAP identity service.
+# Each primary section is lists required, optional, and advanced configuration
+# options where available.
+#
+# For a basic installation from scratch, configure:
+#
+#     xsDeploy Configuration --> Required Parameters
+#     xStream Environment Configuration --> Required Parameters
+#
+# xsDeploy requires a target vCenter instance for use with the deployed
+# xStream environment. xStream further requires an AD/LDAP infrastructure for
+# identity management.  xsDeploy provides options for integrating with an
+# existing Active Directory/LDAP infrastructure or deploying an embedded
+# OpenLDAP server.
+#
+
+##############################################################################
+#
+# xsDeploy Configuration
+#
+
+[xsdeploy]
+
+#
+# Required Parameters
+#
+
+SSHPASS='redhat'
+REPO='https://evalev:jens7iNs@downloads.virtustream.com/artifactory/repo-release/xstream' ### PROVIDE REPOSITORY INFORMATION ###
+RELEASE='4.7.0'                                                        ### PROVIDE RELEASE TAG ###
+AIO_HOST='192.168.219.128'
+AIO_NAME='AIO1'
+DOMAIN='xsportal.local'
+ENV_ID='Env_AIO1'       ### Unique string for xsDeploy to identify deployment state of this environment.
+                        ### Use __RANDOM__ to generate ID on run. Will trigger save of configuration file!
+#
+# Optional Parameters
+#
+                        ### If START_INSTALL is set to False -s y parameter must be used.
+START_INSTALL=True
+                        ### If GENERATE_YAML is set to False -g y parameter must be used
+                        ### to refresh dynamic configuration files.
+GENERATE_YAML=True
+INSTALL=False           ### -i parameter activates install
+UPGRADE=False           ### -u parameter activates upgrade
+FORCE_UPGRADE=False
+UPDATE_OS=False         ### --update_os parameter full OS package update, including xStream
+
+USE_SSHPASS=True
+LEAVE_SSH_KEYS=True
+
+VERBOSITY='info'    ### Update to debug for troubleshooting purposes. Will create LOTS of output!
+PUPPET_RELEASE='http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm'
+PUPPET_APPLY_OPTIONS=''
+EPEL_RELEASE='epel-release-6-8.noarch.rpm'
+EPEL_REPO='http://dl.fedoraproject.org/pub/epel/6/x86_64/'
+PREREQ_PKGS='openssh-clients puppet'
+LOCAL_PREREQ_PKGS=''
+SAVE_CONFIG=False
+WORKDIR='.'
+
+#
+# Advanced Parameters
+#
+
+AIO=True
+#OLD_RELEASE='4.8.0'
+USE_STATIC_HOSTS=True
+
+# component host IP addresses;
+#MONGO_HOSTS=''
+#VSWH_HOSTS=''
+#BPMWH_HOSTS=''
+#RMQ_HOSTS=''
+#HAP_HOSTS=''
+#RID_HOSTS=''
+#APP_HOSTS=''
+#WEB_HOSTS=''
+#CON_HOSTS=''
+#LDAP_HOSTS=''
+# Deprecated. Use only for removal of ELK stack
+#ELK_HOSTS=''
+
+# component host names;
+#MONGO_NAMES=''
+#VSWH_NAMES=''
+#BPMWH_NAMES=''
+#RMQ_NAMES=''
+#HAP_NAMES=''
+#RID_NAMES=''
+#APP_NAMES=''
+#WEB_NAMES=''
+#CON_NAMES=''
+#LDAP_NAMES=''
+# Deprecated. Use only for removal of ELK stack
+#ELK_NAMES=''
+
+FORCE_HOSTNAME=False
+FORCE_RESOLVER=False
+FORCE_PREINSTALL=False
+FORCE_EXCHANGE=False
+
+# xsDeploy temporary files location on xStream hosts. Defaults to /var/tmp/xsdeploy
+#XSDEPLOY_TMP_DIR=/var/tmp/xsdeploy
+
+# -------- Offline Mode ------------------------------------------------------
+#OFFLINE_ENABLED=False
+#OFFLINE_REPO_HOST=__FILL_ME__
+#OFFLINE_REPO_ROOT=/usr/share/xstream/offline
+#OFFLINE_REPO_PORT=8080
+#OFFLINE_DISABLE_OTHER_REPOS=False
+
+##############################################################################
+#
+# xStream Environment Configuration
+#
+
+[xscommon]
+
+#
+# Required Parameters
+#
+
+# Master password for various service user accounts used internally by the xStream.
+# Separate account passwords can be customized by setting an adcanced section variable.
+install__master_pwd = 'Password231'
+
+# Any xStream controlled user accout password can be set to random 10 symbol alphanumeric
+# string if empty ('') or __PASSWORD__ placeholder value is assigned to it.
+# This includes PostgreSQL, MongoDB, RabbitMQ and internal LDAP accounts.
+#
+# Random password will trigger save of configuration file!
+
+#
+# vCenter connection information
+
+vs_xstream__vc_host = '10.10.10.10'                ### PROVIDE THE VCENTER HOST IP ADDRESS ###
+vs_xstream__vc_admin = 'administrator@dummy.local'   ### PROVIDE A VCENTER ADMIN ACCOUNT USER NAME ###
+vs_xstream__vc_password = 'Pa$$w0rd97'      ### PROVIDE A VCENTER ADMIN ACCOUNT PASSWORD ###
+# If not explicitly specified, then vs_xstream__vc_host value will be copied and port 7343 added.
+# VCenter console host address to connect to default 7343 port for WSS console connection
+# vs_xsteam__vc_con_host = '__VC_CON_IP__'
+# Full VCenter console URI if console service is not running on 7343 port
+# vs_xsteam__vc_con_host = 'wss://__VC_CON_IP__:PORT'
+
+# xsDeploy supports integration with an existing Directory
+# infrastructure (AD or LDAP) or the deployment of an OpenLDAP instance for
+# managing identity.  To use an existing directory servifes infrastructure, configure
+# the variables in the configuration section below. Ignore AD in naming, same parameters goes for AD and LDAP
+# To deploy and use an embedded OpenLDAP server, set the vs_xstream__openldap_conn
+# variable to True, comment the variables in the AD section below, and
+# uncomment and configure the variable in the OpenLDAP configuration section.
+
+# Due to limitation in the current implementation, xsDeploy still requires
+# plain-text password values for some accounts, even if SHA hashes of each
+# LDAP/AD password is provided.
+# This applies to the following accounts:
+# vs_xstream__ad_admin, vs_xstream__admin_user_name, vs_xstream__config_user, vs_xstream__rid_admin, vs_ldap__ldap_root
+
+# Deadbolt URL. Must be specified with protocol and port.
+# Parameter is required.
+vs_xstream__deadbolt_url = 'https://10.60.45.60:8080'
+
+# OpenLDAP configuration information; uncomment and configure, ignore the "ad" in the names
+# all variables to deploy an integrated OpenLDAP server.
+# Required OpenLDAP configuration parameters
+vs_xstream__ad_host = '127.0.0.1'
+vs_xstream__ad_ou = 'OU=Users,OU=Virtustream,OU=Customers,DC=xsportal,DC=local'
+vs_xstream__ad_admin = 'CN=!ldap_admin,OU=Users,OU=Virtustream,OU=Customers,DC=xsportal,DC=local'
+vs_xstream__ad_password = 'Password1'
+vs_xstream__ad_domain = 'xsportal.local'
+vs_xstream__ad_search = 'OU=Customers,DC=xsportal,DC=local'
+# Set to True if want to use encrypted communication with LDAP
+vs_xstream__ad_secure = False
+
+#
+# Required configuration parameters for internal OpenLDAP server configuration
+
+# Set to False if external LDAP/AD identity service is to be used.
+vs_ldap__openldap_on_aio = True
+# We are connecting to OpenLDAP.
+vs_xstream__openldap_conn = True
+
+vs_ldap__ldap_root = 'ldaproot'
+vs_ldap__ldap_root_password = 'Password1'
+# Plain text password value is taken from apropriate vs_xstream__* variable
+# value. Usernames for RID and SAM acounts are taken from appropriate
+# vs_xstream__* accounts
+vs_ldap__ad_admin = '!ldap_admin'
+vs_ldap__admin_user_name = '1a'
+vs_ldap__config_user = '!config_user'
+vs_ldap__master_password = 'Password1'
+
+vs_ldap__ldap_dn = 'DC=xsportal,DC=local'
+vs_ldap__ldap_dc = 'xsportal'
+vs_ldap__prov_name = 'Virtustream'
+vs_ldap__prov_number = 1
+vs_ldap__prov_telex= '000001'
+vs_ldap__install_client = True
+
+# Optionally, you may provide SHA hashes rather than plaintext passwords;
+# hashed values will override any plain-text passwords configured above.
+# However for vs_xstream__* variables password plain text value still
+# must be supplied and must match hash value.
+#vs_ldap__master_passwd_hash = '{SHA}cMzZAHM41tgd07YnFiG5z5qX6gA='
+#vs_ldap__config_user_passwd_hash = '{SHA}cMzZAHM41tgd07YnFiG5z5qX6gA='
+#vs_ldap__passwd_hash = '{SHA}cMzZAHM41tgd07YnFiG5z5qX6gA='
+#vs_ldap__admin_user_passwd_hash = '{SHA}cMzZAHM41tgd07YnFiG5z5qX6gA='
+#vs_ldap__rid_admin_passwd_hash = '{SHA}cMzZAHM41tgd07YnFiG5z5qX6gA='
+#vs_ldap__sam_admin_passwd_hash = '{SHA}cMzZAHM41tgd07YnFiG5z5qX6gA='
+
+#
+# xStream configuration parameters
+
+vs_xstream__config_user = '1a@xsportal.local'
+vs_xstream__config_pass = 'Password1'
+vs_xstream__admin_user_name = '1a@xsportal.local'
+vs_xstream__admin_user_pass = 'Password1'
+
+vs_xstream__rid_admin = '!portal_resourceid'
+vs_xstream__rid_domain = 'xsportal.local'
+vs_xstream__rid_password = 'Password1'
+vs_xstream__rid_path = 'resourceIdManagement'
+vs_xstream__rid_customer = 'A001'
+vs_xstream__rid_location = '01'     # RID location is limited to two characters only!
+vs_xstream__rid_country =  'US'
+
+vs_xstream__srv_req_mail = 'root@xs.xsportal.local'
+vs_xstream__tenant_name = 'Virtustream'
+vs_xstream__region_name = 'LAB'
+vs_xstream__region_code = '1'
+vs_xstream__site_name = 'TESTSITE'
+vs_xstream__site_code = '1'
+vs_xstream__hypervisor_name = 'TEST-SITE'
+vs_xstream__hypervisor_code = '1'
+
+# Enables new cost agent service, and setups pgsql, False by default
+vs_xstream__enable_cost_agent = False
+
+# Set to true to disable alert fetching, false by default
+# vs_xstream__disable_alerts_fetching=True
+
+
+vs_xstream__smtp = '127.0.0.1'
+## Plain hostname or IP address will result in smtp://hostname or smtp://IP_ADDRESS
+# vs_xstream__smtp = '10.0.0.100'
+## To specify SMTP authentication credentials, use the following notation
+# vs_xstream__smtp = 'smtp://user:password@host'
+## To specify secure TLS enabled SMTP service use smtps:// as prefix.
+# smtps://user:password@host'
+## To specify arbitrary port number use :port after server address
+# smtp://host:2525'
+
+# Do not set vs_resolver__domain_name_servers variable unless you want to trigger /etc/resolv.conf update!
+# File will be overwritten with below defined values.
+#vs_resolver__domain_name_servers = [ '8.8.8.8', '8.8.4.4' ]
+#vs_resolver__domain_search = [ 'xsportal.local' ]
+#vs_resolver__domain_name = [ 'xsportal.local' ]
+
+#
+# Optional Parameters
+#
+
+# xStream localization setting. If not defined defaults to en locale
+vs_xstream__locale = 'en'
+vs_datawarehouse__do_install = True
+
+# Nginx configuration for AppDirector Console. If host is not defined, Nginx configuration is not changed.
+#vs_xstream__appdirector_console_host = '127.0.0.1'
+#vs_xstream__appdirector_console_port = '8003'
+
+# Customize component credentials by uncommenting the parameters below; these
+# credentials will override the value defined in install__master_pwd.
+
+#install__mongo_admin_pwd =
+#install__mongo_localuser_pwd =
+#install__mongo_xstreamuser_pwd =
+#install__mongo_riduser_pwd =
+#install__rabbit_admin_pwd =
+#install__vs_data_wh_pentaho_pwd =
+#install__vs_data_wh_xstream_ro_pwd =
+# Password for costagent user in datawarehouse
+#install__vs_data_wh_costagent_pwd =
+
+# If PostgreSQL passwords are not set explicitly or left empty, they will be
+# set to install__master_pwd variable value or random password password if
+# master_password is not set
+# vs_xopt__psql_password = ''
+# vs_xstream__activiti_pass = ''
+# vs_bpm__pass = ''
+
+# Automatically install AppDirector plugins, defaults to False
+# vs_appdirectorplugins__install = True
+
+# Catalog order (order history) URL with scheme, host and optionally port (e.g. https://localhost:8000) if applicable
+# Defaults to AIO host or first HAProxy host if no value provided
+# vs_xstream__link_to_order_host = 'https://localhost'
+
+# Catalog email address from
+# vs_xstream__email_from = 'administrator@xstreamdev.local'
+
+# Job Failed default email address when can't reach user
+# vs_xstream__jobfailed_defaulttargetaddress = 'address@virtustream.com'
+
+##############################################################################
+#
+# Virtustream Storage Cloud configuration (Optional)
+#
+# Uncomment to enable Virtustream Storage Cloud management integration within xStream
+# vs_xstream__vsc_enabled=True
+
+# Parameters below are mandatory if vs_xstream__vsc_enabled is set to True
+# Uncomment and set host value for reseller api
+# vs_xstream__vsc_reseller_host = 'os.emcrubicon.com'
+# vs_xstream__vsc_reseller_user = 'username'
+# vs_xstream__vsc_reseller_password = 'password'
+
+# Uncomment and set host value for metering api
+# vs_xstream__vsc_metering_host = 'metering-us.emc.io'
+
+##############################################################################
+#
+# Certificate Configuration (Optional)
+#
+
+# If you want to use statically generated SSL certificates set vs_xstream__cert_generate
+# variable below to False and insert BASE64 encoded PRIVATE KEY and CERTIFICATE content
+# into vs_xstream__cert_file_key and vs_xstream__cert_file_crt apropriately.
+#
+# If vs_xstream__cert_generate is False and at least one of vs_xstream__cert_file_key
+# or vs_xstream__cert_file_crt is empty, or is set to '' (empty string), then NO
+# certificate will be deployed. Use this setting when doing upgrade.
+#
+# If vs_xstream__cert_generate is True, then vs_xstream__cert_file_key and
+# vs_xstream__cert_file_crt content will be ignored and self signed certificate will be
+# generated and inserted to NGinx configuration.
+
+vs_xstream__cert_generate = False
+vs_xstream__cert_file_key = ''
+vs_xstream__cert_file_crt = ''
+
+# Define and PRIVATE KEY and CERTIFICATE content to be deployed to xStream WEB servers.
+# vs_xstream__cert_file_key =
+#   -----BEGIN PRIVATE KEY-----
+#   BASE64 encoded PRIVATE KEY content
+#   -----END PRIVATE KEY-----
+#
+# vs_xstream__cert_file_crt =
+#   -----BEGIN CERTIFICATE-----
+#   BASE64 encoded CERTIFICATE content
+#   -----END CERTIFICATE-----
+
+
+
+##############################################################################
+#
+# Unused Roles, can be omitted.
+#
+
+[role-ui]
+[role-mongodb]
+[role-rabbitmq]
+[host-aio]
+[host-ldap1]
+[host-ldap2]
+[host-app1]
+[host-app2]
+[host-hap1]
+[host-hap2]
+[host-mdb1]
+[host-mdb2]
+[host-mdb3]
+[host-rid1]
+[host-rid2]
+[host-rmq1]
+[host-rmq2]
+[host-web1]
+[host-web2]
+[host-con1]
+[host-con2]

@@ -1,0 +1,16 @@
+---
+
+- hosts: local
+  user: root
+  connection: ssh
+  gather_facts: yes
+  become: yes
+  tasks:
+   - name: add hostname to /etc/hosts file to resolve it locally
+     lineinfile:
+       path: /etc/hosts
+       line: '192.168.219.128 aio1.xsportal.local aio1'
+       backup: yes
+     register: result
+   - debug: var=result
+

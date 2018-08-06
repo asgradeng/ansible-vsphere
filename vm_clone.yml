@@ -1,0 +1,54 @@
+---
+#Create a new VM from a template
+
+- name: VM from template
+  hosts: local
+  gather_facts: false
+  connection: local
+  vars:
+    vcenter_hostname: 10.60.45.38
+    vcenter_user: administrator@nestlab.local
+    vcenter_pass: Pa$$w0rd97
+    esxhost: 10.60.45.36
+    datastore: datastore 1
+    network: "VM Network"
+    vmtemplate: CBM6US014XVM012
+    vmcluster: LAN
+    notes: Created by Ansible
+    dumpfacts: False
+    name: local
+  tasks:
+#    - name: Check for required variables
+#      fail: msg="Must pass name and group to -e"
+#      when: name is not defined or group is not defined
+
+#    - name: Check for vSphere access parameters
+#      fail: msg="Must set vcenter_user and vcenter_pass in a Vault"
+#      when: (vcenter_user is not defined) or (vcenter_pass is not defined)
+
+    - name: Create VM from template
+      vmware_guest:
+        validate_certs: False
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        esxi_hostname: "{{ esxhost }}"
+        datacenter: xStreamIndia
+        name: "{{ name }}"
+        template: "{{ vmtemplate }}"
+        disk:
+          - size_gb: "{{ disk_size | default(2) }}"
+            type: thin
+            datastore: "{{ datastore }}"
+        nic:
+          - type: vmxnet3
+            network: "{{ network }}"
+        hardware:
+          memory_mb: "{{ vm_memory | default(512) }}"
+        wait_for_ip_address: True
+        state: present
+      register: newvm
+
+    - name: IP address info
+      debug:
+        msg: "{{ newvm.instance.ipv4 }} {{ name }}"

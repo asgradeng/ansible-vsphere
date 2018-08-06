@@ -1,0 +1,33 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  user: root
+  sudo: True
+  gather_facts: True
+  serial: 1
+  
+  vars_prompt:
+  - name: "vc"
+    prompt: "vCenter Sever FQDN"
+    private: no
+  - name: "user"
+    prompt: "vCenter username"
+    private: no
+  - name: "pw"
+    prompt: "passwords"
+    private: yes
+  - name: "vm"
+    prompt: "Enter a VM name"
+    private: no
+
+  tasks:
+   - vsphere_guest:
+       vcenter_hostname: "{{vc}}"
+       username: "{{user}}"
+       password: "{{pw}}"
+       validate_certs: no
+       guest: "{{vm}}"
+       from_template: yes
+       template_src: "CBM6US014XVM012"
+       cluster: "xStreamIndia"
+       resource_pool: "xStream47 Resource pool"

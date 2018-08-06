@@ -1,0 +1,34 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  user: root
+  sudo: false
+  gather_facts: True
+  serial: 1
+
+  
+  
+  tasks:
+    - name: Create a VM template
+      vmware_guest:
+       hostname: 10.60.45.38
+       username: administrator@nestlab.local
+       password: Pa$$w0rd97
+       validate_certs: no
+       datacenter: xStreamIndia
+       cluster: xStreamIndia
+       resource_pool: xstream Compute
+       folder: xStreamIndia/vm
+       name: testvm_6
+       state: absent
+#       guest_id: debian6_64Guest
+#      disk:
+#      - size_gb: 10
+#         type: thin
+#         autoselect_datastore: 1 
+#       hardware:
+#         memory_mb: 256
+#         num_cpus: 1
+#         scsi: lsilogic
+#      delegate_to: localhost
+#      register: deploy

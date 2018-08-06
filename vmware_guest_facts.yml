@@ -1,0 +1,27 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  user: root
+  sudo: false
+  gather_facts: True
+  serial: 1
+
+  tasks:
+    - name: Gather facts from standalone ESXi server having datacenter as 'ha-datacenter'
+      vmware_guest_facts:
+       hostname: 10.60.45.12
+       username: xstream_india@vs.lab
+       password: Pa$$w0rd97
+       datacenter: xStreamIndia
+       validate_certs: no
+       name: TestVM
+      delegate_to: localhost
+      register: facts
+    - name: gather facts of vcenter
+      vmware_host_facts:
+       hostname: 10.60.45.12
+       username: xstream_india@vs.lab
+       password: Pa$$w0rd97
+       validate_certs: no
+      delegate_to: localhost
+      register: host_facts 

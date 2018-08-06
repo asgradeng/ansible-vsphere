@@ -1,0 +1,38 @@
+---
+
+- hosts: xstream
+  user: root
+  become: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+   - name: set hostname for this machine
+     hostname: aio1.xsportal.local
+   - name: Run hostnamectl to set it permanently
+     shell: hostnamectl  set-hostname aio1.xsportal.local
+   - name: add hostname to /etc/hosts file to resolve it locally
+     lineinfile:
+       path: /etc/hosts
+       line: '10.60.45.68 aio1.xsportal.local aio1'
+     register: result
+   - name: ping all hosts
+     ping:
+
+   - name: remove some upgraded packages which xstream doesn't support if exists
+     yum: pkg=python2-crypto-2.6.1-15.el7.x86_64 state=absent
+
+  # - name: check if "ping `hostname -f` is a success"
+  #   ping: `hostname -f` 
+
+   - name: add repo
+     shell: curl -sS 'https://evalev:jens7iNs@downloads.virtustream.com/artifactory/repo-release/xstream/4.7.0/subscribe' | bash
+   - name: clean and show repo list
+     shell: yum clean all && yum repolist
+     
+   #- name: Install xStream xsdeploy
+     #yum: pkg=xstream-xsdeploy state=present
+   - name: Install xsdeploy on Centos7/Rhel7
+     shell: yum --setopt=obsoletes=0 install -y xstream-xsdeploy
+
+
+

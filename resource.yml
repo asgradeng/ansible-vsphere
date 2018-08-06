@@ -1,0 +1,25 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  user: root
+  become: yes
+
+  tasks:
+   
+   - vmware_resource_pool:
+       hostname: 10.60.45.38
+       username: administrator@nestlab.local
+       password: Pa$$w0rd97
+       validate_certs: False
+       datacenter: xStreamIndia
+       cluster: xStreamIndia
+       resource_pool: ansible_test
+       mem_shares: normal
+       mem_limit: -1
+       mem_reservation: 0
+       mem_expandable_reservations: yes
+       cpu_shares: normal
+       cpu_limit: -1
+       cpu_reservation: 0
+       cpu_expandable_reservations: yes
+       state: present
